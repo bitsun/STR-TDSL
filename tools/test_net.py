@@ -18,10 +18,10 @@ from maskrcnn_benchmark.utils.logger import setup_logger
 from maskrcnn_benchmark.utils.miscellaneous import mkdir
 
 # Check if we can enable mixed-precision via apex.amp
-try:
-    from apex import amp
-except ImportError:
-    raise ImportError('Use APEX for mixed precision via apex.amp')
+# try:
+#     from apex import amp
+# except ImportError:
+#     raise ImportError('Use APEX for mixed precision via apex.amp')
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
 
     # Initialize mixed-precision if necessary
     use_mixed_precision = cfg.DTYPE == 'float16'
-    amp_handle = amp.init(enabled=use_mixed_precision, verbose=cfg.AMP_VERBOSE)
+    #amp_handle = amp.init(enabled=use_mixed_precision, verbose=cfg.AMP_VERBOSE)
     iou_types = ("bbox",)
     if cfg.MODEL.MASK_ON and not cfg.MODEL.KE_ON:
         iou_types = iou_types + ("segm",)

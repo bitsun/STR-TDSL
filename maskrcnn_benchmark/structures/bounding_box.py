@@ -9,7 +9,7 @@ import cv2
 # from geo_map_cython_lib import gen_geo_map
 from maskrcnn_benchmark.utils.text_util import TextGenerator
 import pyclipper
-import Polygon as plg
+from shapely.geometry  import Polygon as plg
 import numpy as np
 def dist(a, b):
     return np.sqrt(np.sum((a - b) ** 2))

@@ -55,15 +55,17 @@ def get_extensions():
 
     return ext_modules
 
-
-setup(
-    name="maskrcnn_benchmark",
-    version="0.1",
-    author="fmassa",
-    url="https://github.com/facebookresearch/maskrcnn-benchmark",
-    description="object detection in pytorch",
-    packages=find_packages(exclude=("configs", "tests",)),
-    # install_requires=requirements,
-    ext_modules=get_extensions(),
-    cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
-)
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+    setup(
+        name="maskrcnn_benchmark",
+        version="0.1",
+        author="fmassa",
+        url="https://github.com/facebookresearch/maskrcnn-benchmark",
+        description="object detection in pytorch",
+        packages=find_packages(exclude=("configs", "tests",)),
+        # install_requires=requirements,
+        ext_modules=get_extensions(),
+        cmdclass={"build_ext": torch.utils.cpp_extension.BuildExtension},
+        install_requires=required,
+    )

@@ -6,7 +6,7 @@ from torch.nn.modules.utils import _pair
 
 from maskrcnn_benchmark import _C
 
-from apex import amp
+#from apex import amp
 
 
 class _BezierAlign(Function):
@@ -55,7 +55,7 @@ class BezierAlign(nn.Module):
         self.spatial_scale = spatial_scale
         self.sampling_ratio = sampling_ratio
 
-    @amp.float_function
+    #@amp.float_function
     def forward(self, input, beziers):
         return bezier_align(
             input, beziers, self.output_size, self.spatial_scale, self.sampling_ratio
