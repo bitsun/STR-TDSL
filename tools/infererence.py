@@ -1,7 +1,9 @@
 
 import argparse
-import sys
-sys.path.append("D:\\code\\Research\\STR-TDSL")
+import sys,os
+#get the path of the script
+script_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(script_path,".."))
 from maskrcnn_benchmark.config import cfg
 from maskrcnn_benchmark.modeling.detector import build_detection_model
 import torch
@@ -14,7 +16,7 @@ from  imageio import imread
 from PIL import Image
 import os
 from tqdm import tqdm
-
+import numpy as np
 def create_tensor_PIL(image_path:str,longer_side:int):
     """
     create tensor with PIL image

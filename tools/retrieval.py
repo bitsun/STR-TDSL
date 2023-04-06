@@ -1,6 +1,7 @@
 import argparse
-import sys
-sys.path.append("D:\\code\\Research\\STR-TDSL")
+import sys,os
+script_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(script_path,".."))
 from maskrcnn_benchmark.config import cfg
 from maskrcnn_benchmark.modeling.detector import build_detection_model
 import torch
