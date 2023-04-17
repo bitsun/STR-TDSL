@@ -24,6 +24,7 @@ if __name__ == '__main__':
         required=False,
         help="path to the input image or input image folder"
     )
+    parser.add_argument("--ref-text", required=True, help="path to the reference text file,in which reference words are stored in each line")
     parser.add_argument(
         "--config-file",
         default="D:\\code\\Research\\STR-TDSL\\configs\\evaluation.yaml",
@@ -41,7 +42,14 @@ if __name__ == '__main__':
         help="longer side of the image",
         default=640
     )
+    parser.add_argument("--similarity-thres", type=float, default=0.5, help="similarity threshold for text retrieval")
     args = parser.parse_args()
+    sim_th = args.similarity_thres
+    ref_words = []
+    with open(args.ref_text, "r", encoding="utf-8") as f:
+        for line in f:
+            ref_words.append(line.strip())
+
     model_path = args.ckpt
     cfg.merge_from_file(args.config_file)
     cfg.freeze()
@@ -115,37 +123,44 @@ if __name__ == '__main__':
                     x2 = bbox[2].item()/pad_w
                     y2 = bbox[3].item()/pad_h
                     image_text.append((image_path, (x1,y1,x2,y2),imgs_embedding_nor[n,:].cpu().numpy()))
-    #search for the word "welcome" in the image
-    texts = ['Donaukurief']
     #torch no_grad
-    query_words_embedding_list = []
+    ref_words_embedding = []
     with torch.no_grad():
-        words = [torch.tensor(model.decoder.head.text_generator.label_map(text.lower())).long().cuda() for text in texts]
+        words = [torch.tensor(model.decoder.head.text_generator.label_map(word.lower())).long().cuda() for word in ref_words]
         words_embedding = model.decoder.head.word_embedding(words)
         #words_embedding_list.append(words_embedding)
         words_embedding_nor = nn.functional.normalize((words_embedding).tanh().view(words_embedding.size(0),-1))
-        query_words_embedding_list.append(words_embedding_nor[0].cpu().numpy())
+        ref_words_embedding = words_embedding_nor.cpu().numpy()
     #search for the word "welcome" in the image
     similarity_list = []
+    match_text_boxes = {}
     for text_box in image_text:
         image_path = text_box[0]
         bbox = text_box[1]
         imgs_embedding_nor = text_box[2]
-        similarity = np.dot(imgs_embedding_nor, query_words_embedding_list[0])
-        similarity_list.append(similarity)
-        if similarity > 0.6:
-            #print(f"image {image_path} contains the word {texts[0]}")
-            #print(f"bbox: {bbox}")
-            #print(f"similarity score: {similarity}")
-            #load image with cv2
-            image = cv2.imread(image_path)
-            image_width = image.shape[1]
-            image_height = image.shape[0]
-            #draw bbox
-            cv2.rectangle(image, (int(bbox[0]*image_width),int(bbox[1]*image_height)), (int(bbox[2]*image_width),int(bbox[3]*image_height)), (0,255,0), 2)
+        for n in range(len(ref_words_embedding)):
+            similarity = np.dot(imgs_embedding_nor, ref_words_embedding[n])
+            similarity_list.append(similarity)
+            if similarity > sim_th:
+                #check if match_text_boxes has the image_path
+                if image_path in match_text_boxes:
+                    match_text_boxes[image_path].append((bbox,ref_words[n], similarity))
+                else:
+                    match_text_boxes[image_path] = [(bbox,ref_words[n], similarity)]
+    
+    #iterate through match_text_boxes with key as image_path and value as a list of bbox and similarity
+    for image_path,bboxes in match_text_boxes.items():
+        image = cv2.imread(image_path)
+        image_width = image.shape[1]
+        image_height = image.shape[0]
+        #draw bbox
+        for bbox,ref_word,similarity in bboxes:
+            cv2.rectangle(image, (int(bbox[0]*image_width),int(bbox[1]*image_height)), (int(bbox[2]*image_width),int(bbox[3]*image_height)), (255,0,255), 2)
             #format a float with two significant digits
-            cv2.putText(image, '{:.3f}'.format(similarity), (int(bbox[0]*image_width),int(bbox[1]*image_height)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-            #show image
-            cv2.imshow("image", image)
-    cv2.waitKey(0)
+            #cv2.putText(image, '{} {:.3f}'.format(ref_word, similarity), (int(bbox[0]*image_width),int(bbox[1]*image_height)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,255), 2)
+        #show image
+        #get image name from path
+        image_name = image_path.split('/')[-1]
+        cv2.imshow(image_name, image)
+        cv2.waitKey(0)
     print('done')
