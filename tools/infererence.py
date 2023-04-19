@@ -9,7 +9,7 @@ from maskrcnn_benchmark.modeling.detector import build_detection_model
 import torch
 from torch import nn
 from torchvision.transforms import functional as F
-from maskrcnn_benchmark.structures.image_list import ImageList
+from maskrcnn_benchmark.structures.image_list import ImageList,to_image_list
 from maskrcnn_benchmark.utils.checkpoint import DetectronCheckpointer
 import cv2
 from  imageio import imread
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         if has_cuda:
             image_tensor = image_tensor.cuda()
         
-        imagelist = ImageList(image_tensor, [(pad_h,pad_w)])
+        imagelist = to_image_list(image_tensor)
         with torch.no_grad():
             #produce FPN conv features
             features = model.neck(model.backbone(image_tensor))

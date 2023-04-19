@@ -7,7 +7,7 @@ from maskrcnn_benchmark.modeling.detector import build_detection_model
 import torch
 from torch import nn
 from torchvision.transforms import functional as F
-from maskrcnn_benchmark.structures.image_list import ImageList
+from maskrcnn_benchmark.structures.image_list import ImageList,to_image_list
 from maskrcnn_benchmark.structures.bounding_box import BoxList
 from maskrcnn_benchmark.utils.checkpoint import DetectronCheckpointer
 import cv2
@@ -42,9 +42,12 @@ if __name__ == '__main__':
         help="longer side of the image",
         default=640
     )
+    parser.add_argument("--conf-thres", type=float, default=0.2, help="text box confidence threshold for text retrieval")
     parser.add_argument("--similarity-thres", type=float, default=0.5, help="similarity threshold for text retrieval")
+    parser.add_argument('--hide-labels', default=False, action='store_true', help='hide labels')
     args = parser.parse_args()
     sim_th = args.similarity_thres
+    conf_th = args.conf_thres
     ref_words = []
     with open(args.ref_text, "r", encoding="utf-8") as f:
         for line in f:
@@ -84,7 +87,7 @@ if __name__ == '__main__':
             image_tensor = image_tensor.cuda()
         pad_w = image_tensor.shape[3]
         pad_h = image_tensor.shape[2]
-        imagelist = ImageList(image_tensor, [(pad_w,pad_h)])
+        imagelist = to_image_list(image_tensor) #ImageList(image_tensor, [(pad_h,pad_w)])
         with torch.no_grad():
             #produce FPN conv features
             features = model.neck(model.backbone(image_tensor))
@@ -97,7 +100,7 @@ if __name__ == '__main__':
             scores = bboxes.get_field("scores")
         
             #box confidence score threshold is 0.2
-            pos_idxs = torch.nonzero(scores>0.2).view(-1)#75.43
+            pos_idxs = torch.nonzero(scores>conf_th).view(-1)#75.43
             confident_bboxes = bboxes[pos_idxs]
             #bbox provided by external module
             # x1 = 187/960*pad_w
@@ -157,7 +160,13 @@ if __name__ == '__main__':
         for bbox,ref_word,similarity in bboxes:
             cv2.rectangle(image, (int(bbox[0]*image_width),int(bbox[1]*image_height)), (int(bbox[2]*image_width),int(bbox[3]*image_height)), (255,0,255), 2)
             #format a float with two significant digits
-            #cv2.putText(image, '{} {:.3f}'.format(ref_word, similarity), (int(bbox[0]*image_width),int(bbox[1]*image_height)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,255), 2)
+            if not args.hide_labels:
+                viz_text = '{} {:.3f}'.format(ref_word, similarity)
+                viz_text_rect = cv2.getTextSize(viz_text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
+                #text height should be 20% of the bbox height
+                scale = ((bbox[3]-bbox[1])*image_height)*0.2/viz_text_rect[1]
+                #scale = scale
+                cv2.putText(image,viz_text , (int(bbox[0]*image_width),int(bbox[1]*image_height)-2), cv2.FONT_HERSHEY_SIMPLEX, scale, (0,0,255), 1)
         #show image
         #get image name from path
         image_name = image_path.split('/')[-1]
