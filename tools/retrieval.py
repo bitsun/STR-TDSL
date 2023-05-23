@@ -11,7 +11,6 @@ from maskrcnn_benchmark.structures.image_list import ImageList,to_image_list
 from maskrcnn_benchmark.structures.bounding_box import BoxList
 from maskrcnn_benchmark.utils.checkpoint import DetectronCheckpointer
 import cv2
-from  imageio import imread
 import os
 from tqdm import tqdm
 import numpy as np
