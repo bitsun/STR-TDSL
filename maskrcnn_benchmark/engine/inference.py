@@ -74,7 +74,8 @@ def compute_on_dataset(model, data_loader, device, timer=None):
                 timer.tic()
             # output = model(images.to(device),targets,is_words=(_==0))
             # print(images.tensors.shape)
-            output = model(images.to(device),targets,is_words=True)
+            with torch.autocast(device_type='cuda', dtype=torch.float16):
+                output = model(images.to(device),targets,is_words=True)
             if _ == 0:
                 output[0].add_field("y_trues",targets[0].get_field("y_trues"))
             if timer:
