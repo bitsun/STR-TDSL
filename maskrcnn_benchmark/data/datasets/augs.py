@@ -7,7 +7,6 @@ from numpy import random
 from shapely.geometry import box, Polygon
 import math
 from .image_process import *
-from scipy.misc import imread, imresize
 class Compose(object):
     def __init__(self, transforms):
         self.transforms = transforms
@@ -26,8 +25,8 @@ class Resize(object):
         self.heigth = size[0]
     def __call__(self, image, boxes=None, tags=None,poly_fixed_points=True):
         ori_h, ori_w, _ = image.shape
-
-        new_image = imresize(image.copy(), (self.heigth,self.width))
+        #note that cv2.resize is (w,h) instead of (h,w)
+        new_image = cv2.resize(image,(self.width,self.heigth))
         if boxes is not None:
             boxes[:,:,0] *= self.width*1.0/ori_w
             boxes[:,:,1] *= self.heigth*1.0/ori_h
@@ -137,7 +136,8 @@ class TestAugmentation(object):
         pad_h = h if h%32==0 else (h//32+1)*32
         pad_w = w if w%32==0 else (w//32+1)*32
         # new_image = np.zeros([pad_h, pad_w,3])
-        new_image = imresize(image.copy(), (pad_h,pad_w))
+        #note that cv2.resize is (w,h) instead of (h,w)
+        new_image = cv2.resize(image,(pad_w,pad_h))
         if boxes is not None:
             boxes[:,:,0] *= pad_w*1.0/ori_w
             boxes[:,:,1] *= pad_h*1.0/ori_h

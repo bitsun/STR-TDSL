@@ -34,7 +34,8 @@ All the cuda code in [maskrcnn-benchmark] are patched to be compatible with pyto
     1. go to source code root dir
     2.<code>python -c "import torch;from torch.utils.cpp_extension import CUDA_HOME;print (CUDA_HOME)"</code> it is going to look for CUDA_PATH environment variable in the system, if it is not found, it outputs <code>C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA\v10.2</code>.  pytorch 1.0 is likely built with cuda 10.2. But in my system it shows <code>C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA\v11.8</code>
     3. run <code>"C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"</code> so that cl.exe can be found in the path
-    4. build the cpp and cu extensions by running <code>python setup.py build_ext</code>,and 
+    4. depending on the visual studio version, it might be necessary to run <code>set DISTUTILS_USE_SDK=1</code> in the command line before proceeding
+    5. build the cpp and cu extensions by running <code>python setup.py build_ext</code>,and 
 3. install this module,<code>python setup.py install</code>
 4. (hack)Now there should be an new folder <code>build</code> created in the root dir. For some reason the <code>align</code> folder under <code>$(STR-TDSL_RootDir)/maskrcnn_benchmark/modeling/one_stage_head</code> is not copied. Therefore on my computer i have to do the following manual copying to <code>$(AnacondaRootDir)\envs\pytorch-1.0\Lib\site-packages\maskrcnn_benchmark-0.1-py3.7-win-amd64.egg\maskrcnn_benchmark\modeling\one_stage_head</code>
 

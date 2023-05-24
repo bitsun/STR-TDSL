@@ -1,11 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 # Set up custom environment before nearly anything else is imported
 # NOTE: this should be the first import (no not reorder)
-from maskrcnn_benchmark.utils.env import setup_environment  # noqa F401 isort:skip
+#from maskrcnn_benchmark.utils.env import setup_environment  # noqa F401 isort:skip
 
 import argparse
-import os
-
+import os,sys
+script_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(script_path,".."))
 import torch
 from maskrcnn_benchmark.config import cfg
 from maskrcnn_benchmark.data import make_data_loader
@@ -45,6 +46,11 @@ def main():
         default=None,
         nargs=argparse.REMAINDER,
     )
+    parser.add_argument(
+        "--data-dir",
+        help="the root dir of dataset",
+        default=None
+    )
 
     args = parser.parse_args()
 
@@ -60,6 +66,8 @@ def main():
 
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+    if args.data_dir is not None:
+        cfg.DATASETS.ROOT_DIR = args.data_dir
     cfg.freeze()
 
     save_dir = ""

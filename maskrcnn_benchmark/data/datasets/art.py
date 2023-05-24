@@ -2,7 +2,7 @@ import torch
 import os
 from PIL import Image
 import numpy as np
-from scipy.misc import imread, imresize
+from imageio import imread
 import codecs
 import cv2
 import json

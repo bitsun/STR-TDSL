@@ -86,6 +86,7 @@ _C.INPUT.VERTICAL_FLIP_PROB_TRAIN = 0.0
 # Dataset
 # -----------------------------------------------------------------------------
 _C.DATASETS = CN()
+_C.DATASETS.ROOT_DIR = "./data"
 # List of the dataset names for training, as present in paths_catalog.py
 _C.DATASETS.TRAIN = ()
 # List of the dataset names for testing, as present in paths_catalog.py
