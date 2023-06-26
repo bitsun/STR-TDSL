@@ -1,9 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 import torch
 from torch import nn
-
-from maskrcnn_benchmark.layers import ROIAlign, BezierAlign
-from maskrcnn_benchmark.layers import ModulatedDeformRoIPoolingPack
+import torchvision
+#from maskrcnn_benchmark.layers import ROIAlign, BezierAlign
+#from maskrcnn_benchmark.layers import ModulatedDeformRoIPoolingPack
 
 from .utils import cat
 
@@ -70,8 +70,9 @@ class Pooler(nn.Module):
         poolers = []
         for scale in scales:
             if mode == 'align':
-                pooler = ROIAlign(
-                    output_size, spatial_scale=scale, sampling_ratio=sampling_ratio)
+                #pooler = ROIAlign(
+                #    output_size, spatial_scale=scale, sampling_ratio=sampling_ratio)
+                pooler = torchvision.ops.RoIAlign(output_size, spatial_scale=scale, sampling_ratio=sampling_ratio)
             # elif mode == 'deformable':
             #     pooler = ModulatedDeformRoIPoolingPack(
             #         spatial_scale=scale, out_size=output_size[0],

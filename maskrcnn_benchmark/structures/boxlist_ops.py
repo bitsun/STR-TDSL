@@ -3,7 +3,8 @@ import torch
 
 from .bounding_box import BoxList
 
-from maskrcnn_benchmark.layers import nms as _box_nms
+#from maskrcnn_benchmark.layers import nms as _box_nms
+from torchvision.ops import nms as _box_nms
 import numpy as np
 
 def boxlist_nms(boxlist, nms_thresh, max_proposals=-1, score_field="scores"):
