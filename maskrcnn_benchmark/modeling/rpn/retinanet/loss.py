@@ -9,7 +9,8 @@ from torch.nn import functional as F
 from ..utils import concat_box_prediction_layers
 
 from maskrcnn_benchmark.layers import smooth_l1_loss
-from maskrcnn_benchmark.layers import SigmoidFocalLoss
+#from maskrcnn_benchmark.layers import SigmoidFocalLoss
+from torchvision.ops import sigmoid_focal_loss as SigmoidFocalLoss
 from maskrcnn_benchmark.modeling.matcher import Matcher
 from maskrcnn_benchmark.modeling.utils import cat
 from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou

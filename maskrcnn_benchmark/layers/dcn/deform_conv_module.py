@@ -3,8 +3,20 @@ import math
 import torch
 import torch.nn as nn
 from torch.nn.modules.utils import _pair
-
-from .deform_conv_func import deform_conv, modulated_deform_conv
+import logging
+try:
+    from .deform_conv_func import deform_conv
+except ImportError:
+    #issue warning here
+    logging.warning("Cannot import deformable convolution op. use torchvision instead")
+    from torchvision.ops import DeformConv2d as deform_conv
+    deform_conv = None
+try:
+    from .deform_conv_func import modulated_deform_conv
+except ImportError:
+    #issue warning here
+    logging.warning("Cannot import deformable convolution op.")
+    modulated_deform_conv = None
 
 
 class DeformConv(nn.Module):
